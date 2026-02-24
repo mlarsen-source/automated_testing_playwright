@@ -1,0 +1,90 @@
+# Test environment - runs the full test suite inside Docker
+#
+# Usage:
+#   docker compose -f docker-compose.test.yml up --build --exit-code-from playwright
+#
+# --exit-code-from playwright  -> exit code of `docker compose up` mirrors the
+#                                playwright container exit code (0 = all tests pass)
+
+services:
+  test-db:
+    env_file:
+      - .env.test
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${TEST_MYSQL_ROOT_PASSWORD:?set in .env.test}
+      MYSQL_DATABASE: ${TEST_MYSQL_DATABASE:?set in .env.test}
+      MYSQL_USER: ${TEST_MYSQL_USER:?set in .env.test}
+      MYSQL_PASSWORD: ${TEST_MYSQL_PASSWORD:?set in .env.test}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${TEST_MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  server:
+    build: ./server
+    env_file:
+      - .env.test
+    environment:
+      NODE_ENV: test
+      PORT: ${TEST_SERVER_PORT:?set in .env.test}
+      DB_HOST: test-db
+      DB_PORT: ${TEST_DB_PORT:?set in .env.test}
+      MYSQL_DATABASE: ${TEST_MYSQL_DATABASE:?set in .env.test}
+      MYSQL_USER: ${TEST_MYSQL_USER:?set in .env.test}
+      MYSQL_PASSWORD: ${TEST_MYSQL_PASSWORD:?set in .env.test}
+      JWT_ACCESS_SECRET: ${TEST_JWT_ACCESS_SECRET:?set in .env.test}
+      CORS_ORIGIN: ${TEST_CORS_ORIGIN:?set in .env.test}
+    depends_on:
+      test-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  frontend:
+    build: ./frontend
+    env_file:
+      - .env.test
+    environment:
+      INTERNAL_API_URL: ${TEST_INTERNAL_API_URL:?set in .env.test}
+    depends_on:
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000',function(r){process.exit(r.statusCode<400?0:1)}).on('error',function(){process.exit(1)})\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  playwright:
+    # Official Playwright Docker image - includes Chromium and all OS dependencies
+    image: mcr.microsoft.com/playwright:v1.49.0-jammy
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      # Tell the test configs where to find the server and frontend
+      API_URL: ${API_URL:?set in .env.test}
+      FRONTEND_URL: ${FRONTEND_URL:?set in .env.test}
+    # Install deps, install browser, then run all tests (unit + integration + e2e + component)
+    command: >
+      sh -c "
+        npm install &&
+        cd server && npm install && cd /app &&
+        cd frontend && npm install && cd /app &&
+        npx playwright install chromium &&
+        cd frontend && npx playwright install chromium && cd /app &&
+        npm test
+      "
+    depends_on:
+      frontend:
+        condition: service_healthy
+      server:
+        condition: service_healthy

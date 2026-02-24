@@ -1,0 +1,196 @@
+:root {
+  --bg: #1f130a;
+  --panel: #2b1a0f;
+  --card: #311e12;
+  --muted: #d8c8a8;
+  --text: #f8eddc;
+  --accent: #f5c542;
+  --accent-strong: #e3a018;
+  --border: #4a2f1b;
+  --danger: #e76f51;
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  --radius: 14px;
+  --transition: 160ms ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body.app-body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(120% 140% at 30% 20%, #3c2616 0%, #1f130a 45%, #120a05 100%);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 32px 20px 48px;
+}
+
+main {
+  width: min(960px, 100%);
+}
+
+h1, h2, h3 {
+  margin: 0 0 12px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+p {
+  color: var(--muted);
+}
+
+.card {
+  background: linear-gradient(145deg, #fefaf2, #f4e6d5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: #2a1a0c;
+}
+
+.page-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header-block {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.panel {
+  padding: 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(160deg, #fdf7ec, #f5ebdb);
+  box-shadow: var(--shadow);
+  color: #2a1a0c;
+}
+
+.note-form {
+  display: grid;
+  gap: 12px;
+}
+
+.note-form .row {
+  display: grid;
+  gap: 8px;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fdf7ec;
+  color: #2a1a0c;
+  padding: 12px 14px;
+  font-size: 15px;
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(245, 197, 66, 0.25);
+}
+
+.textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  color: #3a250e;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+  box-shadow: 0 8px 24px rgba(227, 160, 24, 0.35);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 16px rgba(227, 160, 24, 0.35);
+}
+
+.btn.secondary {
+  background: transparent;
+  color: #2a1a0c;
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.btn.danger {
+  background: linear-gradient(135deg, #f4a261, #e76f51);
+  color: #3a1c0f;
+  box-shadow: 0 8px 24px rgba(231, 111, 81, 0.35);
+}
+
+.note-list {
+  display: grid;
+  gap: 12px;
+}
+
+.note-card {
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(150deg, #fffaf1, #f2e3d1);
+  box-shadow: var(--shadow);
+  color: #2a1a0c;
+}
+
+.note-card h3 {
+  margin: 0 0 8px;
+}
+
+.note-card p {
+  margin: 0 0 12px;
+  color: #5a452f;
+}
+
+.note-card .actions {
+  display: flex;
+  gap: 10px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+}

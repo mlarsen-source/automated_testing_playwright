@@ -1,0 +1,23 @@
+{
+  "name": "notes-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test:ct": "playwright test -c playwright-ct.config.ts"
+  },
+  "dependencies": {
+    "next": "^14.2.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@playwright/experimental-ct-react": "^1.49.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@types/node": "^20.11.19",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.18",
+    "typescript": "^5"
+  }
+}

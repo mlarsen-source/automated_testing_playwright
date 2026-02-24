@@ -1,0 +1,70 @@
+# Development environment - starts DB, server, and frontend
+# Usage: docker compose up
+
+services:
+  db:
+    env_file:
+      - .env
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set in .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?set in .env}
+      MYSQL_USER: ${MYSQL_USER:?set in .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set in .env}
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  server:
+    build: ./server
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      PORT: ${SERVER_PORT:?set in .env}
+      DB_HOST: ${DB_HOST:?set in .env}
+      DB_PORT: ${DB_PORT:?set in .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?set in .env}
+      MYSQL_USER: ${MYSQL_USER:?set in .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set in .env}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?set in .env}
+      CORS_ORIGIN: ${CORS_ORIGIN:?set in .env}
+    ports:
+      - "${SERVER_PORT}:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  frontend:
+    build: ./frontend
+    env_file:
+      - .env
+    environment:
+      INTERNAL_API_URL: ${INTERNAL_API_URL:?set in .env}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000',function(r){process.exit(r.statusCode<400?0:1)}).on('error',function(){process.exit(1)})\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  db_data:
